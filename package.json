@@ -1,0 +1,20 @@
+{
+  "name": "employee-attendance",
+  "version": "1.0.0",
+  "description": "An employee attendance tracking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . MyApp --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.0.2",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
