@@ -101,6 +101,10 @@ window.onload = function () {
 
 function exportData() {
   const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
+  
+  // Log the employee object
+  const employees = JSON.parse(localStorage.getItem("employees")) || [];
+  console.log('Employees:', employees);
 
   // Get the current month, year, and today's date
   const date = new Date();
@@ -111,16 +115,22 @@ function exportData() {
   // Create a list of all days in the month
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Extract unique employee names and their added dates
+  // Create a dictionary of employees with dateAdded and restDays
   const employeeRecords = {};
+
+  // Populate employeeRecords with employees data
+  employees.forEach((employee) => {
+    employeeRecords[employee.name] = {
+      dateAdded: new Date(employee.dateAdded),
+      restDays: [],
+    };
+  });
+
+  // Populate employeeRecords with rest days from restDays
   restDays.forEach((record) => {
-    if (!employeeRecords[record.employeeName]) {
-      employeeRecords[record.employeeName] = {
-        dateAdded: new Date(record.dateAdded), // Store date added using the "dateAdded" key
-        restDays: [],
-      };
+    if (employeeRecords[record.employeeName]) {
+      employeeRecords[record.employeeName].restDays.push(record.date);
     }
-    employeeRecords[record.employeeName].restDays.push(record.date);
   });
 
   // Create the header rows in Arabic with dates, with each date covering two columns for "حضور" and "انصراف"
@@ -146,7 +156,11 @@ function exportData() {
       const currentDate = new Date(year, month, day);
       const dateString = currentDate.toLocaleDateString();
       const isFutureDate = day > today;
+
       const isBeforeDateAdded = currentDate < dateAdded;
+      console.log('currentDate', currentDate);
+      console.log('dateAdded', dateAdded);
+
       const isRestDay = restDays.includes(dateString);
 
       if (isBeforeDateAdded) {
