@@ -101,7 +101,7 @@ window.onload = function () {
 
 function exportData() {
   const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
-  
+
   // Log the employee object
   const employees = JSON.parse(localStorage.getItem("employees")) || [];
   console.log('Employees:', employees);
@@ -138,8 +138,8 @@ function exportData() {
   const dateHeader = ["اسم الموظف"]; // Start with "اسم الموظف" for employee names
   const attendanceHeader = [""]; // Leave the first cell empty under "اسم الموظف"
 
-  // Populate headers with dates spanning two columns
-  for (let day = 1; day <= daysInMonth; day++) {
+  // Populate headers with dates spanning two columns, starting from last day of the month to the first
+  for (let day = daysInMonth; day >= 1; day--) {
     const dateString = new Date(year, month, day).toLocaleDateString();
     dateHeader.push(dateString, ""); // Span two columns for each date
     attendanceHeader.push("حضور", "انصراف"); // Add "حضور" and "انصراف" directly under each date
@@ -152,7 +152,7 @@ function exportData() {
     const { dateAdded, restDays } = employeeRecords[name];
     const row = [name]; // Start with the employee name in the first column
 
-    for (let day = 1; day <= daysInMonth; day++) {
+    for (let day = daysInMonth; day >= 1; day--) {
       const currentDate = new Date(year, month, day);
       const dateString = currentDate.toLocaleDateString();
       const isFutureDate = day > today;
@@ -238,6 +238,7 @@ function exportData() {
     }
   }
 }
+
 
 function clearLog() {
   // Clear the logDiv display
