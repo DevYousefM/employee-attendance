@@ -105,15 +105,17 @@ function exportData() {
   console.log("Employees:", employees);
 
   const date = new Date();
-  const month = date.getMonth();
-  const year = date.getFullYear();
-  const today = date.getDate();
-  console.log(localStorage.getItem("attendanceTime"));
-  console.log(localStorage.getItem("leaveTime"));
+  let month = date.getMonth() - 1; // Previous month
+  let year = date.getFullYear();
+
+  // Adjust if the previous month is December of the previous year
+  if (month < 0) {
+    month = 11;
+    year -= 1;
+  }
 
   const attendanceTime = localStorage.getItem("attendanceTime") || "7 صباحا";
   const leaveTime = localStorage.getItem("leaveTime") || "7 مساء";
-  console.log(attendanceTime);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   console.log(daysInMonth);
@@ -151,7 +153,6 @@ function exportData() {
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const dateString = currentDate.toLocaleDateString();
-      const isFutureDate = day > today;
       const isBeforeDateAdded = currentDate < dateAdded;
       const isRestDay = restDays.includes(dateString);
 
@@ -159,8 +160,6 @@ function exportData() {
         row.push("", "");
       } else if (isRestDay) {
         row.push("راحة", "");
-      } else if (isFutureDate) {
-        row.push("", "");
       } else {
         row.push(attendanceTime, leaveTime);
       }
@@ -226,6 +225,7 @@ function exportData() {
     }
   }
 }
+
 
 function clearLog() {
   // Clear the logDiv display
