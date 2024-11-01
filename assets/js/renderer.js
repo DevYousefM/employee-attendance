@@ -101,24 +101,24 @@ window.onload = function () {
 
 function exportData() {
   const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
-
-  // Log the employee object
   const employees = JSON.parse(localStorage.getItem("employees")) || [];
-  console.log('Employees:', employees);
+  console.log("Employees:", employees);
 
-  // Get the current month, year, and today's date
   const date = new Date();
-  const month = date.getMonth(); // 0-indexed month
+  const month = date.getMonth();
   const year = date.getFullYear();
   const today = date.getDate();
+  console.log(localStorage.getItem("attendanceTime"));
+  console.log(localStorage.getItem("leaveTime"));
 
-  // Create a list of all days in the month
+  const attendanceTime = localStorage.getItem("attendanceTime") || "7 صباحا";
+  const leaveTime = localStorage.getItem("leaveTime") || "7 مساء";
+  console.log(attendanceTime);
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  console.log(daysInMonth);
 
-  // Create a dictionary of employees with dateAdded and restDays
   const employeeRecords = {};
-
-  // Populate employeeRecords with employees data
   employees.forEach((employee) => {
     employeeRecords[employee.name] = {
       dateAdded: new Date(employee.dateAdded),
@@ -126,81 +126,73 @@ function exportData() {
     };
   });
 
-  // Populate employeeRecords with rest days from restDays
   restDays.forEach((record) => {
     if (employeeRecords[record.employeeName]) {
       employeeRecords[record.employeeName].restDays.push(record.date);
     }
   });
 
-  // Create the header rows in Arabic with dates, with each date covering two columns for "حضور" and "انصراف"
   const data = [];
-  const dateHeader = ["اسم الموظف"]; // Start with "اسم الموظف" for employee names
-  const attendanceHeader = [""]; // Leave the first cell empty under "اسم الموظف"
+  const dateHeader = ["اسم الموظف"];
+  const attendanceHeader = [""];
 
-  // Populate headers with dates spanning two columns, starting from last day of the month to the first
-  for (let day = daysInMonth; day >= 1; day--) {
+  for (let day = 1; day <= daysInMonth; day++) {
     const dateString = new Date(year, month, day).toLocaleDateString();
-    dateHeader.push(dateString, ""); // Span two columns for each date
-    attendanceHeader.push("حضور", "انصراف"); // Add "حضور" and "انصراف" directly under each date
+    dateHeader.push(dateString, "");
+    attendanceHeader.push("حضور", "انصراف");
   }
   data.push(dateHeader);
   data.push(attendanceHeader);
 
-  // Populate the data rows with employee names and attendance/rest status
   Object.keys(employeeRecords).forEach((name) => {
     const { dateAdded, restDays } = employeeRecords[name];
-    const row = [name]; // Start with the employee name in the first column
+    const row = [name];
 
-    for (let day = daysInMonth; day >= 1; day--) {
+    for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const dateString = currentDate.toLocaleDateString();
       const isFutureDate = day > today;
-
       const isBeforeDateAdded = currentDate < dateAdded;
-      console.log('currentDate', currentDate);
-      console.log('dateAdded', dateAdded);
-
       const isRestDay = restDays.includes(dateString);
 
       if (isBeforeDateAdded) {
-        // Leave cells empty if the date is before the employee's date added
-        row.push("");
-        row.push("");
+        row.push("", "");
       } else if (isRestDay) {
-        // Mark as "راحة" for rest days
-        row.push("راحة");
-        row.push(""); // Leave the next cell blank for merged effect
+        row.push("راحة", "");
       } else if (isFutureDate) {
-        // Leave cells empty if the date is in the future
-        row.push("");
-        row.push("");
+        row.push("", "");
       } else {
-        // Default times for "حضور" and "انصراف" for past and current dates after the date added
-        row.push("7 صباحا");
-        row.push("7 مساء");
+        row.push(attendanceTime, leaveTime);
       }
     }
 
     data.push(row);
   });
 
-  // Create a worksheet from the data
   const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-  // Set column widths
-  worksheet["!cols"] = [{ wch: 22 }]; // Set "اسم الموظف" column to approximately 6 cm width
+  worksheet["!cols"] = [{ wch: 22 }];
   for (let i = 1; i <= daysInMonth * 2; i++) {
-    worksheet["!cols"].push({ wch: 10 }); // Set other columns to a standard width
+    worksheet["!cols"].push({ wch: 12 });
   }
 
-  // Merge cells for date headers and "راحة" cells
-  for (let col = 1; col <= daysInMonth * 2; col += 2) {
-    // Merge the date cells (two columns per date)
-    worksheet["!merges"] = worksheet["!merges"] || [];
-    worksheet["!merges"].push({ s: { r: 0, c: col }, e: { r: 0, c: col + 1 } }); // Merge date cell
+  data.forEach((row, rowIndex) => {
+    row.forEach((cell, colIndex) => {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+      if (!worksheet[cellAddress]) worksheet[cellAddress] = {};
+      worksheet[cellAddress].s = {
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+        },
+      };
+    });
+  });
 
-    // Merge "راحة" cells for rest days
+  worksheet["!merges"] = [];
+  for (let col = 1; col <= daysInMonth * 2; col += 2) {
+    worksheet["!merges"].push({ s: { r: 0, c: col }, e: { r: 0, c: col + 1 } });
+
     data.slice(2).forEach((row, rowIndex) => {
       if (row[col + 1] === "") {
         worksheet["!merges"].push({
@@ -211,24 +203,20 @@ function exportData() {
     });
   }
 
-  // Create a new workbook and append the worksheet
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "سجل الحضور والانصراف");
 
-  // Define a path to save the file, e.g., Desktop
   const filePath = path.join(
     os.homedir(),
     "Desktop",
     `Attendance_Report_${year}_${month + 1}.xlsx`
   );
 
-  // Attempt to save the workbook to the specified path with error handling
   try {
     XLSX.writeFile(workbook, filePath);
     alert(`تم تصدير البيانات إلى ${filePath}`);
   } catch (error) {
     console.error("خطأ في كتابة الملف:", error);
-    // Check for the EBUSY error
     if (error.message.includes("EBUSY")) {
       alert(
         "الملف مفتوح حاليًا أو مؤمن. الرجاء إغلاق 'Attendance_Report_2024_10.xlsx' إذا كان مفتوحًا وحاول مرة أخرى."
@@ -238,7 +226,6 @@ function exportData() {
     }
   }
 }
-
 
 function clearLog() {
   // Clear the logDiv display
