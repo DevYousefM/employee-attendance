@@ -105,10 +105,10 @@ function exportData() {
   console.log("Employees:", employees);
 
   const date = new Date();
-  let month = date.getMonth() - 1; // Previous month
+  let month = date.getMonth(); // return index for month
   let year = date.getFullYear();
+  console.log("month", month);
 
-  // Adjust if the previous month is December of the previous year
   if (month < 0) {
     month = 11;
     year -= 1;
@@ -128,9 +128,10 @@ function exportData() {
     };
   });
 
+  // Parse rest day dates into Date objects for accurate comparison
   restDays.forEach((record) => {
     if (employeeRecords[record.employeeName]) {
-      employeeRecords[record.employeeName].restDays.push(record.date);
+      employeeRecords[record.employeeName].restDays.push(new Date(record.date));
     }
   });
 
@@ -138,23 +139,25 @@ function exportData() {
   const dateHeader = ["اسم الموظف"];
   const attendanceHeader = [""];
 
+  // Create headers for dates
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateString = new Date(year, month, day).toLocaleDateString();
+    const dateString = new Date(year, month, day).toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
     dateHeader.push(dateString, "");
     attendanceHeader.push("حضور", "انصراف");
   }
   data.push(dateHeader);
   data.push(attendanceHeader);
 
+  // Populate attendance data for each employee
   Object.keys(employeeRecords).forEach((name) => {
     const { dateAdded, restDays } = employeeRecords[name];
     const row = [name];
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
-      const dateString = currentDate.toLocaleDateString();
+      const dateString = currentDate.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
       const isBeforeDateAdded = currentDate < dateAdded;
-      const isRestDay = restDays.includes(dateString);
+      const isRestDay = restDays.some(restDay => restDay.toLocaleDateString() === dateString);
 
       if (isBeforeDateAdded) {
         row.push("", "");
@@ -218,7 +221,7 @@ function exportData() {
     console.error("خطأ في كتابة الملف:", error);
     if (error.message.includes("EBUSY")) {
       alert(
-        "الملف مفتوح حاليًا أو مؤمن. الرجاء إغلاق 'Attendance_Report_2024_10.xlsx' إذا كان مفتوحًا وحاول مرة أخرى."
+        `الملف مفتوح حاليًا أو مؤمن. الرجاء إغلاق 'Attendance_Report_${year}_${month + 1}.xlsx' إذا كان مفتوحًا وحاول مرة أخرى.`
       );
     } else {
       alert("حدث خطأ أثناء تصدير البيانات. يرجى المحاولة مرة أخرى.");
