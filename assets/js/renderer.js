@@ -32,7 +32,7 @@ function loadRestDays() {
     const restDays = JSON.parse(storedRestDays);
     restDays.forEach((record) => {
       logDiv.innerHTML += `
-                <div class="alert alert-info my-2 log-entry" data-id="${record.employeeId}" data-name="${record.employeeName}">
+                <div class="alert alert-info my-2 log-entry" data-id="${record.employeeId}" data-date="${record.date}" data-name="${record.employeeName}">
                     <strong>Employee ID: ${record.employeeId} (${record.employeeName})</strong><br>
                     Marked as on rest day for <strong>${record.date}</strong>
                 </div>`;
@@ -46,7 +46,11 @@ function markRest() {
   const employeeName = selectedOption.text; // Get selected employee name directly
 
   if (employeeId) {
-    const restDay = new Date().toLocaleDateString();
+    // Format the date as "DD/MM/YYYY"
+    const today = new Date();
+    const restDay = `${today.getDate()}/${
+      today.getMonth() + 1
+    }/${today.getFullYear()}`;
     const record = { employeeId, employeeName, date: restDay }; // Store employee name in the log record
 
     // Check for existing rest days for the same employee on the same day
@@ -70,11 +74,11 @@ function markRest() {
 
     // Log the entry
     logDiv.innerHTML += `
-            <div class="alert alert-info my-2 log-entry" data-id="${employeeId}" data-name="${employeeName}">
-                <i class="fas fa-bed"></i>
-                <strong>Employee ID: ${employeeId} (${employeeName})</strong><br>
-                Marked as on rest day for <strong>${restDay}</strong>
-            </div>`;
+      <div class="alert alert-info my-2 log-entry" data-id="${employeeId}" data-name="${employeeName}" data-date="${restDay}">
+        <i class="fas fa-bed"></i>
+        <strong>Employee ID: ${employeeId} (${employeeName})</strong><br>
+        Marked as on rest day for <strong>${restDay}</strong>
+      </div>`;
   } else {
     alert("Please select an Employee");
   }
@@ -102,36 +106,59 @@ window.onload = function () {
 function exportData() {
   const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
   const employees = JSON.parse(localStorage.getItem("employees")) || [];
-  console.log("Employees:", employees);
+  console.log("Loaded Employees:", employees);
+  console.log("Loaded Rest Days:", restDays);
 
   const date = new Date();
-  let month = date.getMonth(); // return index for month
+  let month = date.getMonth();
   let year = date.getFullYear();
-  console.log("month", month);
-
-  if (month < 0) {
-    month = 11;
-    year -= 1;
-  }
+  console.log(`Exporting Data for Month: ${month + 1}, Year: ${year}`);
 
   const attendanceTime = localStorage.getItem("attendanceTime") || "7 صباحا";
   const leaveTime = localStorage.getItem("leaveTime") || "7 مساء";
+  console.log(`Attendance Time: ${attendanceTime}, Leave Time: ${leaveTime}`);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  console.log(daysInMonth);
+  console.log("Days in Current Month:", daysInMonth);
 
   const employeeRecords = {};
   employees.forEach((employee) => {
-    employeeRecords[employee.name] = {
-      dateAdded: new Date(employee.dateAdded),
+    console.log("Employee:", employee);
+
+    const [day, month, year] = employee.dateAdded.split("/").map(Number);
+
+    const dateAdded = new Date(year, month - 1, day); // month - 1 because JavaScript months are 0-indexed
+
+    if (isNaN(dateAdded.getTime())) {
+      console.error(`Invalid date added for employee: ${employee.name}`);
+      return; // Skip this employee if the date is invalid
+    }
+
+    employeeRecords[employee.id] = {
+      name: employee.name,
+      dateAdded: dateAdded,
       restDays: [],
     };
+    console.log(`Added Employee Record: ${employee.name} (ID: ${employee.id})`);
   });
 
-  // Parse rest day dates into Date objects for accurate comparison
   restDays.forEach((record) => {
-    if (employeeRecords[record.employeeName]) {
-      employeeRecords[record.employeeName].restDays.push(new Date(record.date));
+    console.log(record);
+
+    const [day, month, year] = record.date.split("/").map(Number);
+    const restDay = new Date(year, month - 1, day);
+
+    if (isNaN(restDay.getTime())) {
+      console.error(`Invalid Date for record: ${record.date}`);
+      return;
+    }
+
+    if (employeeRecords[record.employeeId]) {
+      employeeRecords[record.employeeId].restDays.push(restDay);
+      // console.log(
+      //   `Rest Day Added for ${employeeRecords[record.employeeId].name}:`,
+      //   formatDate(restDay)
+      // );
     }
   });
 
@@ -139,32 +166,67 @@ function exportData() {
   const dateHeader = ["اسم الموظف"];
   const attendanceHeader = [""];
 
+  // Helper function to format date as "DD/MM/YYYY"
+  function formatDate(date) {
+    // console.log(`Formatting Date: ${date}`);
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
   // Create headers for dates
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateString = new Date(year, month, day).toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const currentDate = new Date(year, month, day);
+    const dateString = formatDate(currentDate);
     dateHeader.push(dateString, "");
     attendanceHeader.push("حضور", "انصراف");
+    // console.log(`Added Date Header: ${dateString}`);
   }
   data.push(dateHeader);
   data.push(attendanceHeader);
+  console.log("employeeRecords", employeeRecords);
 
   // Populate attendance data for each employee
-  Object.keys(employeeRecords).forEach((name) => {
-    const { dateAdded, restDays } = employeeRecords[name];
+  Object.keys(employeeRecords).forEach((employeeId) => {
+    const { name, dateAdded, restDays } = employeeRecords[employeeId];
     const row = [name];
+    // console.log(`Processing Attendance for Employee: ${name}`);
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
-      const dateString = currentDate.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
+      const dateString = formatDate(currentDate);
       const isBeforeDateAdded = currentDate < dateAdded;
-      const isRestDay = restDays.some(restDay => restDay.toLocaleDateString() === dateString);
+      // console.log("----");
+      // console.log(currentDate);
+      // console.log(dateAdded);
+      // console.log("----");
 
-      if (isBeforeDateAdded) {
+      const isFutureDate = currentDate > date;
+
+      // Log date comparison details
+      // console.log(`Evaluating Attendance for ${name} on ${dateString}:`);
+      // console.log(`- Is Before Date Added: ${isBeforeDateAdded}`);
+      // console.log(`- Is Future Date: ${isFutureDate}`);
+
+      const isRestDay = restDays.some((restDay) => {
+        return (
+          restDay.getFullYear() === currentDate.getFullYear() &&
+          restDay.getMonth() === currentDate.getMonth() &&
+          restDay.getDate() === currentDate.getDate()
+        );
+      });
+
+      if (isFutureDate || isBeforeDateAdded) {
         row.push("", "");
+        console.log(`- ${dateString} is outside of valid attendance period`);
       } else if (isRestDay) {
         row.push("راحة", "");
+        console.log(`- Marked Rest Day for ${name} on ${dateString}`);
       } else {
         row.push(attendanceTime, leaveTime);
+        console.log(`- Recorded Attendance for ${name} on ${dateString}`);
       }
     }
 
@@ -216,19 +278,21 @@ function exportData() {
 
   try {
     XLSX.writeFile(workbook, filePath);
+    console.log(`Exported data to ${filePath}`);
     alert(`تم تصدير البيانات إلى ${filePath}`);
   } catch (error) {
     console.error("خطأ في كتابة الملف:", error);
     if (error.message.includes("EBUSY")) {
       alert(
-        `الملف مفتوح حاليًا أو مؤمن. الرجاء إغلاق 'Attendance_Report_${year}_${month + 1}.xlsx' إذا كان مفتوحًا وحاول مرة أخرى.`
+        `الملف مفتوح حاليًا أو مؤمن. الرجاء إغلاق 'Attendance_Report_${year}_${
+          month + 1
+        }.xlsx' إذا كان مفتوحًا وحاول مرة أخرى.`
       );
     } else {
       alert("حدث خطأ أثناء تصدير البيانات. يرجى المحاولة مرة أخرى.");
     }
   }
 }
-
 
 function clearLog() {
   // Clear the logDiv display
@@ -251,8 +315,13 @@ function filterLogs() {
   Array.from(logEntries).forEach((entry) => {
     const employeeId = entry.getAttribute("data-id").toLowerCase();
     const employeeName = entry.getAttribute("data-name").toLowerCase();
+    const recordDate = entry.getAttribute("data-date");
     // Show the entry if it matches the search term
-    if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm)) {
+    if (
+      employeeId.includes(searchTerm) ||
+      employeeName.includes(searchTerm) ||
+      recordDate.includes(searchTerm)
+    ) {
       entry.style.display = "";
     } else {
       entry.style.display = "none";

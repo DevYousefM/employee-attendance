@@ -20,15 +20,15 @@ function loadEmployees() {
 
 // Function to add an employee
 function addEmployee() {
-    const employeeName = document.getElementById('employeeName').value;
+    const employeeName = document.getElementById('employeeName').value.trim();
 
     if (employeeName) {
         // Assign the current ID and increment for the next one
         const employeeId = nextEmployeeId++; // Use current ID and then increment
         
-        // Get today's date
+        // Get today's date and format it as "DD/MM/YYYY"
         const today = new Date();
-        const dateAdded = today.toLocaleDateString(); // Format the date as "MM/DD/YYYY"
+        const dateAdded = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
         
         employees.push({ id: employeeId, name: employeeName, dateAdded });
         updateLocalStorage();
