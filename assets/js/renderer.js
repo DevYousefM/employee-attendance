@@ -112,53 +112,38 @@ function exportData() {
   const date = new Date();
   let month = date.getMonth();
   let year = date.getFullYear();
-  console.log(`Exporting Data for Month: ${month + 1}, Year: ${year}`);
 
   const attendanceTime = localStorage.getItem("attendanceTime") || "7 صباحا";
   const leaveTime = localStorage.getItem("leaveTime") || "7 مساء";
-  console.log(`Attendance Time: ${attendanceTime}, Leave Time: ${leaveTime}`);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  console.log("Days in Current Month:", daysInMonth);
 
   const employeeRecords = {};
   employees.forEach((employee) => {
-    console.log("Employee:", employee);
-
     const [day, month, year] = employee.dateAdded.split("/").map(Number);
-
-    const dateAdded = new Date(year, month - 1, day); // month - 1 because JavaScript months are 0-indexed
+    const dateAdded = new Date(year, month - 1, day);
 
     if (isNaN(dateAdded.getTime())) {
       console.error(`Invalid date added for employee: ${employee.name}`);
-      return; // Skip this employee if the date is invalid
+      return;
     }
-
     employeeRecords[employee.id] = {
       name: employee.name,
       dateAdded: dateAdded,
       restDays: [],
     };
-    console.log(`Added Employee Record: ${employee.name} (ID: ${employee.id})`);
   });
 
   restDays.forEach((record) => {
-    console.log(record);
-
     const [day, month, year] = record.date.split("/").map(Number);
     const restDay = new Date(year, month - 1, day);
 
     if (isNaN(restDay.getTime())) {
-      console.error(`Invalid Date for record: ${record.date}`);
       return;
     }
 
     if (employeeRecords[record.employeeId]) {
       employeeRecords[record.employeeId].restDays.push(restDay);
-      // console.log(
-      //   `Rest Day Added for ${employeeRecords[record.employeeId].name}:`,
-      //   formatDate(restDay)
-      // );
     }
   });
 
@@ -166,9 +151,7 @@ function exportData() {
   const dateHeader = ["اسم الموظف"];
   const attendanceHeader = [""];
 
-  // Helper function to format date as "DD/MM/YYYY"
   function formatDate(date) {
-    // console.log(`Formatting Date: ${date}`);
 
     const day = date.getDate();
     const month = date.getMonth() + 1;
@@ -176,39 +159,24 @@ function exportData() {
     return `${day}/${month}/${year}`;
   }
 
-  // Create headers for dates
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month, day);
     const dateString = formatDate(currentDate);
     dateHeader.push(dateString, "");
     attendanceHeader.push("حضور", "انصراف");
-    // console.log(`Added Date Header: ${dateString}`);
   }
   data.push(dateHeader);
   data.push(attendanceHeader);
-  console.log("employeeRecords", employeeRecords);
 
-  // Populate attendance data for each employee
   Object.keys(employeeRecords).forEach((employeeId) => {
     const { name, dateAdded, restDays } = employeeRecords[employeeId];
     const row = [name];
-    // console.log(`Processing Attendance for Employee: ${name}`);
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const dateString = formatDate(currentDate);
       const isBeforeDateAdded = currentDate < dateAdded;
-      // console.log("----");
-      // console.log(currentDate);
-      // console.log(dateAdded);
-      // console.log("----");
-
       const isFutureDate = currentDate > date;
-
-      // Log date comparison details
-      // console.log(`Evaluating Attendance for ${name} on ${dateString}:`);
-      // console.log(`- Is Before Date Added: ${isBeforeDateAdded}`);
-      // console.log(`- Is Future Date: ${isFutureDate}`);
 
       const isRestDay = restDays.some((restDay) => {
         return (
