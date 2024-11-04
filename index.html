@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Attendance</title>
+    <title>حضور الموظفين</title>
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
   </head>
@@ -12,38 +12,38 @@
       <div class="d-flex justify-content-between my-4">
         <div>
           <a href="pages/employee.html" class="btn btn-info text-white"
-            >Manage Employees</a
+            >الموظفين</a
           >
           <a href="pages/settings.html" class="btn btn-info text-white"
-            >Settings</a
+            >الاعدادات</a
           >
           <a href="pages/exports.html" class="btn btn-info text-white"
-            >Exports</a
+            >ملفات الاكسل</a
           >
         </div>
         <button type="button" class="btn btn-success" onclick="exportData()">
-          Export Data
+          استخراج ملف اكسل
         </button>
       </div>
-      <h1 class="text-center mb-4">Employee Attendance System</h1>
+      <h1 class="text-center mb-4">نظام حضور الموظفين</h1>
 
       <div class="card p-4">
         <form id="attendanceForm">
           <div class="mb-3">
             <label for="employeeSelect" class="form-label"
-              >Select Employee</label
+              >اختر الموظف</label
             >
             <select id="employeeSelect" class="form-control">
-              <option value="">-- Select Employee --</option>
+              <option value="">-- اختر الموظف --</option>
             </select>
           </div>
 
           <div class="d-flex justify-content-between">
             <button type="button" class="btn btn-warning" onclick="markRest()">
-              Mark as Rest Day
+              تسجيل الموظف راحة
             </button>
             <button type="button" class="btn btn-danger" onclick="clearLog()">
-              Clear Log
+              مسح السجل
             </button>
           </div>
         </form>
@@ -51,13 +51,13 @@
 
       <div class="mt-4">
         <div class="row mb-2 d-flex justify-content-between align-items-center">
-          <h5 class="col-6 mb-0">Rest Day Log</h5>
+          <h5 class="col-6 mb-0">سجل الراحة</h5>
           <div class="col-4">
             <input
               type="text"
               id="searchInput"
               class="form-control col-12"
-              placeholder="Search by Employee ID or Name"
+              placeholder="البحث بالاسم او الرقم او التاريخ"
               oninput="filterLogs()"
             />
           </div>

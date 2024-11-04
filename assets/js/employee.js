@@ -38,7 +38,7 @@ function addEmployee() {
         // Set focus back to the input field
         document.getElementById('employeeName').focus(); // Focus on the employee name input
     } else {
-        alert("Please enter Employee Name");
+        alert("الرجاء إدخال اسم الموظف");
     }
 }
 
@@ -56,10 +56,10 @@ function displayEmployees() {
     employees.forEach(employee => {
         const listItem = document.createElement('li');
         listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-        listItem.textContent = `ID: ${employee.id} - Name: ${employee.name} - Date Added: ${employee.dateAdded}`;
+        listItem.textContent = `رقم الموظف: ${employee.id} - الاسم: ${employee.name} - تاريخ الإضافة: ${employee.dateAdded}`;
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-danger btn-sm';
-        deleteButton.textContent = 'Delete';
+        deleteButton.textContent = 'حذف';
         deleteButton.onclick = () => deleteEmployee(employee.id);
         listItem.appendChild(deleteButton);
         listItem.onclick = () => loadEmployee(employee.id);

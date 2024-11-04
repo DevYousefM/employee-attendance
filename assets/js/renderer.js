@@ -33,8 +33,8 @@ function loadRestDays() {
     restDays.forEach((record) => {
       logDiv.innerHTML += `
                 <div class="alert alert-info my-2 log-entry" data-id="${record.employeeId}" data-date="${record.date}" data-name="${record.employeeName}">
-                    <strong>Employee ID: ${record.employeeId} (${record.employeeName})</strong><br>
-                    Marked as on rest day for <strong>${record.date}</strong>
+                    <strong>رقم الموظف: ${record.employeeId} (${record.employeeName})</strong><br>
+                    راحة يوم <strong>${record.date}</strong>
                 </div>`;
     });
   }
@@ -61,7 +61,7 @@ function markRest() {
 
     if (isAlreadyResting) {
       alert(
-        `Employee ID ${employeeId} (${employeeName}) is already marked as on rest day for ${restDay}.`
+        `رقم الموظف ${employeeId} (${employeeName}) فعليا راحة يوم ${restDay}.`
       );
       return; // Prevent adding the same entry
     }
@@ -76,11 +76,11 @@ function markRest() {
     logDiv.innerHTML += `
       <div class="alert alert-info my-2 log-entry" data-id="${employeeId}" data-name="${employeeName}" data-date="${restDay}">
         <i class="fas fa-bed"></i>
-        <strong>Employee ID: ${employeeId} (${employeeName})</strong><br>
-        Marked as on rest day for <strong>${restDay}</strong>
+        <strong>رقم الموظف: ${employeeId} (${employeeName})</strong><br>
+        راحة يوم <strong>${restDay}</strong>
       </div>`;
   } else {
-    alert("Please select an Employee");
+    alert("يرجى تحديد الموظف الذي تريد راحة");
   }
 }
 
@@ -97,7 +97,7 @@ window.onload = function () {
   loadRestDays();
   if (typeof XLSX === "undefined" || typeof XLSX.utils === "undefined") {
     console.error("XLSX library or utils not loaded.");
-    alert("Failed to load the XLSX library. Check the console for errors.");
+    alert("فشل تحميل مكتبة XLSX. الرجاء التحقق من الخطوات الخاصة.");
   } else {
     console.log("XLSX library loaded successfully:", XLSX.utils);
   }
@@ -272,7 +272,7 @@ function clearLog() {
   restDaysData.length = 0; // Clear the array in memory
 
   // Inform the user
-  alert("The log has been cleared.");
+  alert("تم مسح سجل الحضور والانصراف.");
 }
 
 // Function to filter logs based on search input

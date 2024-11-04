@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Management</title>
+    <title>ادارة الموظفين</title>
     <link rel="stylesheet" href="../assets/css/style.css" />
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
   </head>
   <body class="bg-light">
     <div class="container mt-5">
       <div>
-        <a href="../index.html" class="btn btn-info text-white">Home</a>
+        <a href="../index.html" class="btn btn-info text-white">الرئيسية</a>
         <a href="settings.html" class="btn btn-info text-white"
-          >Settings</a
+          >الاعدادات</a
         >
       </div>
-      <h1 class="text-center mb-4">Employee Management</h1>
+      <h1 class="text-center mb-4">ادارة الموظفين</h1>
 
       <div class="card p-4">
         <form id="employeeForm">
           <div class="mb-3">
-            <label for="employeeName" class="form-label">Employee Name</label>
+            <label for="employeeName" class="form-label">اسم الموظف</label>
             <input
               type="text"
               class="form-control"
               id="employeeName"
-              placeholder="Enter Employee Name"
+              placeholder="ادخل اسم الموظف"
               onkeypress="checkEnter(event)"
             />
           </div>
           <button type="button" class="btn btn-primary" onclick="addEmployee()">
-            Add Employee
+            اضافة موظف
           </button>
         </form>
       </div>
 
       <div id="employeeList" class="mt-4">
-        <h5>Employee List</h5>
+        <h5>قائمة الموظفين</h5>
         <ul class="list-group"></ul>
       </div>
     </div>

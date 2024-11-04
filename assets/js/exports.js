@@ -7,18 +7,18 @@ function populateMonthSelect() {
   const select = document.getElementById("monthSelect");
   const date = new Date();
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "يناير",
+    "فبراير",
+    "مارس",
+    "ابريل",
+    "مايو",
+    "يونيو",
+    "يوليو",
+    "اغسطس",
+    "سبتمبر",
+    "اكتوبر",
+    "نوفمبر",
+    "ديسمبر",
   ];
 
   const currentMonthIndex = date.getMonth();

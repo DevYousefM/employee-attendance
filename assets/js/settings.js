@@ -5,9 +5,9 @@ function saveSettings() {
     if (attendanceTime && leaveTime) {
       localStorage.setItem("attendanceTime", attendanceTime);
       localStorage.setItem("leaveTime", leaveTime);
-      alert("Settings saved successfully!");
+      alert("تم حفظ الإعدادات!");
     } else {
-      alert("Please enter both attendance and leave times.");
+      alert("يرجى تعبئة جميع الحقول.");
     }
   }
 
